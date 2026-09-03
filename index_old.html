@@ -647,13 +647,34 @@
     const transport  = document.getElementById('transport').value;
     const flights    = parseFloat(document.getElementById('flights').value) || 0;
 
-    const travelCO2  = travel * EF.travel[transport];
-    const elecCO2    = electricity * EF.electricity;
-    const mealCO2    = meals * EF.meal;
-    const flightCO2  = (flights / 30) * EF.flight;  // per day
+   fetch("http://127.0.0.1:5000/predict", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    travel: travel,
+    electricity: electricity,
+    transport: transport,
+    diet: "veg",
+    flights: flights
+  })
+})
+.then(res => res.json())
+.then(res => {
 
-    const total = travelCO2 + elecCO2 + mealCO2 + flightCO2;
-    const totalFixed = total.toFixed(2);
+  const total = res.carbon_footprint;
+  const contributions = res.contributions;
+  const totalFixed = total.toFixed(2);
+   document.getElementById("placeholder").style.display = "none";
+     document.getElementById("result").style.display = "block";
+      document.getElementById("totalVal").innerText = totalFixed;
+
+  console.log("AI Result:", totalFixed);
+    console.log("SHAP:", contributions);
+  });
+
+}
 
     // Determine level
     let level = 'low', levelText = 'Below average 🌱 Great work!';
@@ -706,7 +727,7 @@
 
     updateHistory();
     updateChart();
-  }
+
 
   function generateInsight(total, travel, elec, meal, flight, transport) {
     const biggest = Math.max(travel, elec, meal, flight);
