@@ -24,6 +24,9 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Local dev database
+*.db
+
 # Logs
 *.log
 

@@ -713,33 +713,25 @@
     <div class="section-head reveal">
       <span class="eyebrow">Analytics</span>
       <h2>Where your emissions come from</h2>
-      <p>A breakdown of contribution by category, your largest source, and a rolling week-over-week trend.</p>
+      <p>Live figures from your saved prediction history — category breakdown, a 7-day trend, and goal progress.</p>
     </div>
 
     <div class="analytics-grid">
       <div class="card analytics-card reveal">
-        <h3>Contribution by category</h3>
-        <span class="sub">Estimated share of total daily emissions</span>
+        <h3>Category breakdown</h3>
+        <span class="sub" id="categorySub">Share of your logged predictions by emission band</span>
 
         <div class="contrib-row">
-          <div class="contrib-row__label"><span>Personal vehicle</span><span id="contribTravelPct">38%</span></div>
-          <div class="contrib-track"><div class="contrib-fill" data-target="38" id="contribTravel"></div></div>
+          <div class="contrib-row__label"><span>Low</span><span id="contribLowPct">0%</span></div>
+          <div class="contrib-track"><div class="contrib-fill" data-target="0" id="contribLow"></div></div>
         </div>
         <div class="contrib-row">
-          <div class="contrib-row__label"><span>Air travel</span><span id="contribAirPct">27%</span></div>
-          <div class="contrib-track"><div class="contrib-fill" data-target="27" id="contribAir"></div></div>
+          <div class="contrib-row__label"><span>Medium</span><span id="contribMediumPct">0%</span></div>
+          <div class="contrib-track"><div class="contrib-fill" data-target="0" id="contribMedium"></div></div>
         </div>
         <div class="contrib-row">
-          <div class="contrib-row__label"><span>Electricity</span><span id="contribEnergyPct">18%</span></div>
-          <div class="contrib-track"><div class="contrib-fill" data-target="18" id="contribEnergy"></div></div>
-        </div>
-        <div class="contrib-row">
-          <div class="contrib-row__label"><span>Diet</span><span id="contribDietPct">11%</span></div>
-          <div class="contrib-track"><div class="contrib-fill" data-target="11" id="contribDiet"></div></div>
-        </div>
-        <div class="contrib-row">
-          <div class="contrib-row__label"><span>Water &amp; waste</span><span id="contribWastePct">6%</span></div>
-          <div class="contrib-track"><div class="contrib-fill" data-target="6" id="contribWaste"></div></div>
+          <div class="contrib-row__label"><span>High</span><span id="contribHighPct">0%</span></div>
+          <div class="contrib-track"><div class="contrib-fill" data-target="0" id="contribHigh"></div></div>
         </div>
 
         <div class="largest-source">
@@ -747,26 +739,26 @@
             <svg viewBox="0 0 24 24" fill="none"><path d="M3 13l2-6h6l2 6M3 13h14M3 13v4h14v-4M7 17v2M15 17v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div>
-            <b id="largestSourceLabel">Personal vehicle travel</b>
-            <span>Largest emission source — cutting solo car trips has the biggest single impact</span>
+            <b id="largestSourceLabel">No predictions yet</b>
+            <span id="largestSourceNote">Calculate your footprint to start building your analytics.</span>
           </div>
         </div>
       </div>
 
       <div>
         <div class="card analytics-card trend-card reveal">
-          <h3>Weekly trend</h3>
-          <span class="sub">Placeholder — connects to real history once predictions are logged</span>
+          <h3>7-day trend</h3>
+          <span class="sub" id="trendSub">Average daily estimate from your saved predictions</span>
           <div class="trend-bars" id="trendBars">
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="52"></div><span>Mon</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="68"></div><span>Tue</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="45"></div><span>Wed</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="80"></div><span>Thu</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="60"></div><span>Fri</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="35"></div><span>Sat</span></div>
-            <div class="trend-bar"><div class="trend-bar__fill" data-target="30"></div><span>Sun</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Mon</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Tue</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Wed</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Thu</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Fri</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Sat</span></div>
+            <div class="trend-bar"><div class="trend-bar__fill" data-target="0"></div><span>Sun</span></div>
           </div>
-          <p class="trend-note">Bar height is relative to your highest day this week.</p>
+          <p class="trend-note" id="trendNote">Bar height is relative to your highest day this week.</p>
         </div>
 
         <div class="card analytics-card progress-card reveal">
@@ -781,7 +773,7 @@
               </svg>
               <div class="progress-ring-center" id="progressRingLabel">0%</div>
             </div>
-            <p>You've logged <b id="progressDaysLow">3 of 7</b> low-emission days this week. Keep public transport and train journeys as your default to stay on track.</p>
+            <p>You've logged <b id="progressDaysLow">0 of 0</b> low-emission predictions this week. Keep public transport and train journeys as your default to stay on track.</p>
           </div>
         </div>
       </div>
@@ -957,7 +949,11 @@
   /* ---------------------------------------------------------------- */
   /* Health check (drives status pill, KPI cards, reports metadata)    */
   /* ---------------------------------------------------------------- */
+  var lastHealthData = null;
+
   function applyHealth(data){
+    lastHealthData = data;
+
     document.getElementById('statusText').textContent = 'API Live';
     document.getElementById('statusPill').classList.remove('is-down');
 
@@ -975,6 +971,14 @@
 
     document.getElementById('reportsHealthText').textContent =
       'API is live and responding. Model ' + (data.model_version || '—') + ' running ' + (data.algorithm || 'unknown algorithm') + '.';
+
+    // If a result (live or hydrated from history) is already showing, its
+    // version/R² tags may have been rendered before health data arrived —
+    // sync them now so they never get stuck on the "—" placeholder.
+    if(document.getElementById('resultCard').classList.contains('is-visible')){
+      document.getElementById('resultVersion').textContent = 'Model ' + (data.model_version || '—');
+      document.getElementById('resultR2').textContent = 'R² ' + (typeof data.r2 === 'number' ? data.r2.toFixed(3) : '—');
+    }
   }
 
   function applyHealthDown(){
@@ -1000,8 +1004,6 @@
       .then(applyHealth)
       .catch(applyHealthDown);
   }
-  loadHealth();
-
   document.getElementById('refreshHealthBtn').addEventListener('click', function(){
     document.getElementById('reportsHealthText').textContent = 'Checking API status…';
     loadHealth();
@@ -1054,6 +1056,17 @@
   /* Result rendering                                                   */
   /* ---------------------------------------------------------------- */
   var lastPrediction = null;
+
+  // Mirrors the eco_tip / color text app.py returns for each category.
+  // /analytics/history only stores the category (not the tip text), so
+  // hydrating the result card from history recomputes it from that category
+  // instead of persisting a duplicate copy of this copy in the database.
+  var ECO_TIPS_BY_CATEGORY = {
+    Low: 'Your estimated emissions are relatively low. Maintaining efficient travel and energy habits can help keep them low.',
+    Medium: 'Reducing personal vehicle use and improving energy efficiency could lower your estimated emissions.',
+    High: 'Frequent private transport, flights, or high electricity usage are likely contributing to higher emissions.'
+  };
+  var COLOR_BY_CATEGORY = { Low: 'Green', Medium: 'Yellow', High: 'Red' };
 
   function renderResult(data){
     lastPrediction = data;
@@ -1185,6 +1198,7 @@
       .then(function(data){
         renderResult(data);
         showToast('Footprint calculated successfully.', 'success');
+        loadAnalytics();
       })
       .catch(function(err){
         showToast(err.message || 'Something went wrong. Please try again.');
@@ -1212,58 +1226,153 @@
   });
 
   /* ---------------------------------------------------------------- */
-  /* Analytics: animate contribution bars, trend, progress ring        */
+  /* Analytics: real data from /analytics/summary and /analytics/history */
   /* ---------------------------------------------------------------- */
-  var analyticsSection = document.getElementById('analytics');
-  var analyticsAnimated = false;
+  var PROGRESS_RING_CIRCUMFERENCE = 263.9; // 2 * PI * r(42)
+  var WEEKDAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  function animateWidthBars(selector){
-    document.querySelectorAll(selector).forEach(function(el){
-      var target = el.dataset.target;
-      requestAnimationFrame(function(){
-        el.style.width = target + '%';
-      });
+  function startOfDay(date){
+    var d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function setBarWidth(id, targetPct){
+    var el = document.getElementById(id);
+    el.dataset.target = targetPct;
+    requestAnimationFrame(function(){ el.style.width = targetPct + '%'; });
+  }
+
+  function applySummary(summary){
+    var dist = summary.category_distribution || { Low: 0, Medium: 0, High: 0 };
+    var total = summary.total_predictions || 0;
+    var pct = function(n){ return total ? Math.round((n / total) * 100) : 0; };
+
+    var lowPct = pct(dist.Low), mediumPct = pct(dist.Medium), highPct = pct(dist.High);
+    document.getElementById('contribLowPct').textContent = lowPct + '%';
+    document.getElementById('contribMediumPct').textContent = mediumPct + '%';
+    document.getElementById('contribHighPct').textContent = highPct + '%';
+    setBarWidth('contribLow', lowPct);
+    setBarWidth('contribMedium', mediumPct);
+    setBarWidth('contribHigh', highPct);
+
+    document.getElementById('categorySub').textContent = total
+      ? 'Share of your ' + total + ' logged prediction' + (total === 1 ? '' : 's') + ' by emission band'
+      : 'No predictions logged yet';
+
+    var topCategory = null;
+    ['Low', 'Medium', 'High'].forEach(function(cat){
+      if(dist[cat] > 0 && (!topCategory || dist[cat] > dist[topCategory])) topCategory = cat;
+    });
+
+    var labelEl = document.getElementById('largestSourceLabel');
+    var noteEl = document.getElementById('largestSourceNote');
+    if(topCategory){
+      labelEl.textContent = topCategory + ' emissions (' + dist[topCategory] + ' of ' + total + ')';
+      noteEl.textContent = 'Your most common emission band across all saved predictions.';
+    } else {
+      labelEl.textContent = 'No predictions yet';
+      noteEl.textContent = 'Calculate your footprint to start building your analytics.';
+    }
+  }
+
+  // Restores the live-estimate gauge, Low/Medium/High badge, eco tip, and
+  // result card from the most recent saved prediction (history is ordered
+  // newest-first by the API). Guarded on lastPrediction so it only fires
+  // once, on initial load — it must never clobber a result the user just
+  // got from a live /predict submission in this same session.
+  function hydrateLatestPrediction(history){
+    if(lastPrediction || !history.length) return;
+
+    var latest = history[0];
+    var category = latest.category;
+
+    renderResult({
+      prediction: latest.prediction,
+      unit: 'kg CO₂/day',
+      category: category,
+      color: COLOR_BY_CATEGORY[category] || null,
+      eco_tip: ECO_TIPS_BY_CATEGORY[category] || '',
+      model_version: lastHealthData ? lastHealthData.model_version : null,
+      r2: lastHealthData ? lastHealthData.r2 : null
     });
   }
 
-  function animateHeightBars(selector){
-    var bars = document.querySelectorAll(selector);
-    var max = 0;
-    bars.forEach(function(el){ max = Math.max(max, Number(el.dataset.target)); });
-    bars.forEach(function(el){
-      var target = Number(el.dataset.target);
-      var pct = max ? (target / max) * 100 : 0;
-      requestAnimationFrame(function(){
-        el.style.height = pct + '%';
-      });
-    });
-  }
+  function applyHistory(history){
+    hydrateLatestPrediction(history);
 
-  function animateProgressRing(){
-    var circumference = 263.9; // 2 * PI * r(42)
-    var pct = 3 / 7; // 3 of 7 low-emission days, matches copy below
-    var offset = circumference * (1 - pct);
+    var today = startOfDay(new Date());
+    var days = [];
+    for(var i = 6; i >= 0; i--){
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      days.push({ date: d, key: d.toDateString(), sum: 0, count: 0, low: 0 });
+    }
+    var dayByKey = {};
+    days.forEach(function(day){ dayByKey[day.key] = day; });
+
+    history.forEach(function(item){
+      var key = startOfDay(new Date(item.timestamp)).toDateString();
+      var bucket = dayByKey[key];
+      if(!bucket) return;
+      bucket.sum += item.prediction;
+      bucket.count += 1;
+      if(item.category === 'Low') bucket.low += 1;
+    });
+
+    var averages = days.map(function(day){ return day.count ? day.sum / day.count : 0; });
+    var maxAvg = Math.max.apply(null, averages.concat([0]));
+
+    var barEls = document.querySelectorAll('#trendBars .trend-bar');
+    barEls.forEach(function(barEl, idx){
+      var day = days[idx];
+      var avg = averages[idx];
+      var heightPct = maxAvg ? (avg / maxAvg) * 100 : 0;
+      var fillEl = barEl.querySelector('.trend-bar__fill');
+      fillEl.dataset.target = heightPct.toFixed(1);
+      requestAnimationFrame(function(){ fillEl.style.height = heightPct + '%'; });
+      barEl.querySelector('span').textContent = WEEKDAY_LABELS[day.date.getDay()];
+      fillEl.title = day.count
+        ? avg.toFixed(1) + ' kg CO₂/day avg (' + day.count + ' logged)'
+        : 'No predictions logged';
+    });
+
+    var weekLow = 0, weekTotal = 0;
+    days.forEach(function(day){ weekLow += day.low; weekTotal += day.count; });
+
+    var ringPct = weekTotal ? weekLow / weekTotal : 0;
+    var offset = PROGRESS_RING_CIRCUMFERENCE * (1 - ringPct);
     var ring = document.getElementById('progressRing');
-    requestAnimationFrame(function(){
-      ring.style.strokeDashoffset = offset;
-    });
-    document.getElementById('progressRingLabel').textContent = Math.round(pct * 100) + '%';
+    requestAnimationFrame(function(){ ring.style.strokeDashoffset = offset; });
+    document.getElementById('progressRingLabel').textContent = Math.round(ringPct * 100) + '%';
+    document.getElementById('progressDaysLow').textContent = weekLow + ' of ' + weekTotal;
+
+    document.getElementById('trendSub').textContent = weekTotal
+      ? 'Average daily estimate from ' + weekTotal + ' prediction' + (weekTotal === 1 ? '' : 's') + ' over the last 7 days'
+      : 'No predictions logged in the last 7 days yet';
   }
 
-  var analyticsObserver = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting && !analyticsAnimated){
-        analyticsAnimated = true;
-        animateWidthBars('.contrib-fill');
-        animateHeightBars('.trend-bar__fill');
-        animateProgressRing();
-      }
-    });
-  }, { threshold: 0.2 });
-  analyticsObserver.observe(analyticsSection);
+  function loadAnalytics(){
+    fetch('/analytics/summary')
+      .then(function(res){ if(!res.ok) throw new Error('Summary request failed'); return res.json(); })
+      .then(applySummary)
+      .catch(function(){ /* leave last known analytics values in place */ });
 
-  /* Init gauge at zero */
-  setGauge(0);
+    fetch('/analytics/history?limit=200')
+      .then(function(res){ if(!res.ok) throw new Error('History request failed'); return res.json(); })
+      .then(function(data){ applyHistory(data.history || []); })
+      .catch(function(){ /* leave last known analytics values in place */ });
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Bootstrap: hydrate the dashboard from saved server state           */
+  /* ---------------------------------------------------------------- */
+  setGauge(0); // safe default until loadAnalytics() restores a real result, if any
+
+  document.addEventListener('DOMContentLoaded', function(){
+    loadHealth();
+    loadAnalytics();
+  });
 })();
 </script>
 </body>
