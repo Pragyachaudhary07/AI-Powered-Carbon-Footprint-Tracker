@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History — CarbonLens</title>
+<meta name="description" content="Your full CarbonLens prediction history.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% include "_head_style.html" %}
+</head>
+<body>
+
+<a class="skip-link" href="#historySearch">Skip to search</a>
+
+<div class="blob-field" aria-hidden="true">
+  <div class="blob blob--a"></div>
+  <div class="blob blob--b"></div>
+  <div class="blob blob--c"></div>
+</div>
+
+{% include "_navbar.html" %}
+
+<main>
+  <div class="container page-hero">
+    <div class="section-head reveal is-visible">
+      <span class="eyebrow">Account</span>
+      <h2>Prediction history</h2>
+      <p>Every footprint you've calculated, newest first. Search across category or values.</p>
+    </div>
+  </div>
+
+  <div class="container section-inner" style="padding-top:8px;">
+    <div class="card reveal is-visible" style="padding:24px;">
+      <div class="history-toolbar">
+        <div class="history-search">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="search" id="historySearch" placeholder="Search by category, date, or value…" autocomplete="off">
+        </div>
+        <span style="font-size:0.82rem; color:var(--ink-400);" id="historyCount">Loading…</span>
+      </div>
+
+      <div class="history-table-wrap">
+        <table class="history-table" id="historyTable" hidden>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Prediction</th>
+              <th>Category</th>
+              <th>Personal vehicle</th>
+              <th>Public transport</th>
+              <th>Electricity</th>
+              <th>Diet</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div class="history-empty" id="historyEmpty" hidden>No predictions match your search.</div>
+        <div class="history-empty" id="historyLoading">Loading your history…</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% include "_footer_toast.html" %}
+
+{% include "_shared_scripts.html" %}
+<script>
+(function(){
+  "use strict";
+
+  var DIET_LABELS = { 0: 'Vegetarian', 1: 'Mixed', 2: 'Vegan' };
+  var allRecords = [];
+
+  function badgeClass(category){
+    var cat = (category || '').toLowerCase();
+    if(cat === 'low') return 'badge--low';
+    if(cat === 'medium') return 'badge--medium';
+    if(cat === 'high') return 'badge--high';
+    return 'badge--idle';
+  }
+
+  function formatTimestamp(iso){
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return iso;
+    return d.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function renderRows(records){
+    var tbody = document.getElementById('historyBody');
+    var table = document.getElementById('historyTable');
+    var empty = document.getElementById('historyEmpty');
+
+    tbody.innerHTML = '';
+
+    if(!records.length){
+      table.hidden = true;
+      empty.hidden = false;
+      return;
+    }
+
+    table.hidden = false;
+    empty.hidden = true;
+
+    records.forEach(function(record){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + formatTimestamp(record.timestamp) + '</td>' +
+        '<td><b>' + record.prediction.toFixed(1) + '</b> kg CO₂/day</td>' +
+        '<td><span class="badge ' + badgeClass(record.category) + '">' + record.category + '</span></td>' +
+        '<td>' + record.Personal_Vehicle_Km + ' km</td>' +
+        '<td>' + record.Public_Vehicle_Km + ' km</td>' +
+        '<td>' + record.Electricity_Kwh + ' kWh</td>' +
+        '<td>' + (DIET_LABELS[record.Diet_Type] || '—') + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function applyFilter(){
+    var query = document.getElementById('historySearch').value.trim().toLowerCase();
+    if(!query){
+      renderRows(allRecords);
+      document.getElementById('historyCount').textContent = allRecords.length + ' prediction' + (allRecords.length === 1 ? '' : 's');
+      return;
+    }
+
+    var filtered = allRecords.filter(function(record){
+      var haystack = [
+        record.category,
+        formatTimestamp(record.timestamp),
+        record.prediction,
+        DIET_LABELS[record.Diet_Type]
+      ].join(' ').toLowerCase();
+      return haystack.indexOf(query) !== -1;
+    });
+
+    renderRows(filtered);
+    document.getElementById('historyCount').textContent = filtered.length + ' of ' + allRecords.length + ' predictions';
+  }
+
+  document.getElementById('historySearch').addEventListener('input', applyFilter);
+
+  fetch('/analytics/history?limit=500')
+    .then(function(res){
+      if(!res.ok) throw new Error('Could not load history');
+      return res.json();
+    })
+    .then(function(data){
+      allRecords = data.history || [];
+      document.getElementById('historyLoading').hidden = true;
+      document.getElementById('historyCount').textContent = allRecords.length + ' prediction' + (allRecords.length === 1 ? '' : 's');
+      renderRows(allRecords);
+    })
+    .catch(function(){
+      document.getElementById('historyLoading').textContent = 'Could not load your history. Please refresh the page.';
+    });
+})();
+</script>
+</body>
+</html>

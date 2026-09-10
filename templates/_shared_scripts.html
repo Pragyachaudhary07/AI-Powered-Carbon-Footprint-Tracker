@@ -1,0 +1,95 @@
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ---------------------------------------------------------------- */
+  /* Mobile nav toggle                                                  */
+  /* ---------------------------------------------------------------- */
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', function(){
+    var open = navLinks.classList.contains('is-open');
+    navLinks.classList.toggle('is-open', !open);
+    navLinks.style.display = open ? 'none' : 'flex';
+    if(!open){
+      navLinks.style.position = 'absolute';
+      navLinks.style.top = 'var(--nav-h)';
+      navLinks.style.left = '0';
+      navLinks.style.right = '0';
+      navLinks.style.background = 'var(--glass-strong)';
+      navLinks.style.backdropFilter = 'blur(16px)';
+      navLinks.style.flexDirection = 'column';
+      navLinks.style.padding = '10px 20px 16px';
+      navLinks.style.borderBottom = '1px solid rgba(11,26,18,0.08)';
+    }
+    navToggle.setAttribute('aria-expanded', String(!open));
+  });
+  navLinks.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', function(){
+      if(window.innerWidth <= 640){
+        navLinks.style.display = 'none';
+        navLinks.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  /* ---------------------------------------------------------------- */
+  /* User menu dropdown (only present when logged in)                  */
+  /* ---------------------------------------------------------------- */
+  var userMenu = document.getElementById('userMenu');
+  if(userMenu){
+    var userMenuTrigger = document.getElementById('userMenuTrigger');
+    userMenuTrigger.addEventListener('click', function(e){
+      e.stopPropagation();
+      userMenu.classList.toggle('is-open');
+      userMenuTrigger.setAttribute('aria-expanded', String(userMenu.classList.contains('is-open')));
+    });
+    document.addEventListener('click', function(e){
+      if(!userMenu.contains(e.target)) userMenu.classList.remove('is-open');
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') userMenu.classList.remove('is-open');
+    });
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* IntersectionObserver reveals                                      */
+  /* ---------------------------------------------------------------- */
+  var revealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el){ revealObserver.observe(el); });
+
+  /* ---------------------------------------------------------------- */
+  /* Navbar scroll shadow                                              */
+  /* ---------------------------------------------------------------- */
+  var navbarEl = document.querySelector('.navbar');
+  window.addEventListener('scroll', function(){
+    navbarEl.classList.toggle('is-scrolled', window.scrollY > 4);
+  }, { passive: true });
+
+  /* ---------------------------------------------------------------- */
+  /* Toasts                                                             */
+  /* ---------------------------------------------------------------- */
+  function showToast(message, type){
+    type = type || 'error';
+    var region = document.getElementById('toastRegion');
+    var toast = document.createElement('div');
+    toast.className = 'toast toast--' + type;
+    var icon = type === 'success'
+      ? '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    toast.innerHTML = icon + '<span></span>';
+    toast.querySelector('span').textContent = message;
+    region.appendChild(toast);
+    setTimeout(function(){
+      toast.classList.add('is-leaving');
+      setTimeout(function(){ toast.remove(); }, 260);
+    }, 4200);
+  }
+</script>

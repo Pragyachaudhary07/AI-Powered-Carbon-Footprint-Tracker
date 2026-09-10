@@ -6,3 +6,6 @@ scikit-learn==1.6.1
 gunicorn==25.1.0
 flask-sqlalchemy==3.0.4
 psycopg2-binary==2.9.11
+flask-login==0.6.2
+flask-migrate==4.1.0
+flask-dance==7.1.0

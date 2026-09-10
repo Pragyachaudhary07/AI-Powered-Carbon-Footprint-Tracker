@@ -1,0 +1,60 @@
+<header class="navbar">
+  <div class="container navbar__inner">
+    <a class="brand" href="/">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 4 7 4 11.5 4 16 7.5 21 12 21s8-5 8-9.5C20 7 17 3 12 3Z" stroke="#fff" stroke-width="1.6"/><path d="M12 21c0-5 2-8 6-10" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      CarbonLens
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="/#dashboard" data-target="dashboard">Dashboard</a>
+      <a href="/#calculator" data-target="calculator">Calculator</a>
+      <a href="/#analytics" data-target="analytics">Analytics</a>
+      <a href="/#reports" data-target="reports">Reports</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Checking API…</span>
+      </div>
+
+      {% if current_user.is_authenticated %}
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu__trigger" id="userMenuTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+          {% if current_user.avatar_url %}
+            <img class="user-menu__avatar" src="{{ current_user.avatar_url }}" alt="" referrerpolicy="no-referrer">
+          {% else %}
+            <span class="user-menu__avatar">{{ current_user.name[:1]|upper }}</span>
+          {% endif %}
+          <span class="user-menu__name">{{ current_user.name }}</span>
+          <svg class="user-menu__chevron" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="user-menu__dropdown" id="userMenuDropdown">
+          <a href="/profile">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Profile
+          </a>
+          <a href="/history">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg>
+            History
+          </a>
+          <hr>
+          <a href="/logout">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M15 17l5-5-5-5M20 12H9M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Logout
+          </a>
+        </div>
+      </div>
+      {% else %}
+      <a href="{{ url_for('google.login') }}" class="btn btn--ghost" style="padding:8px 16px 8px 12px; gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.77-2.4 3.62v3h3.88c2.27-2.09 3.57-5.17 3.57-8.81Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.92l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A11.996 11.996 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.27A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.27v-3.1H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37l4-3.1Z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.63l4 3.1C6.22 6.88 8.87 4.77 12 4.77Z"/></svg>
+        Sign in with Google
+      </a>
+      {% endif %}
+
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>

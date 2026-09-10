@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — CarbonLens</title>
+<meta name="description" content="Your CarbonLens account and lifetime emission stats.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% include "_head_style.html" %}
+</head>
+<body>
+
+<a class="skip-link" href="#profileMain">Skip to profile</a>
+
+<div class="blob-field" aria-hidden="true">
+  <div class="blob blob--a"></div>
+  <div class="blob blob--b"></div>
+  <div class="blob blob--c"></div>
+</div>
+
+{% include "_navbar.html" %}
+
+<main id="profileMain">
+  <div class="container page-hero">
+    <div class="section-head reveal is-visible">
+      <span class="eyebrow">Account</span>
+      <h2>Your profile</h2>
+      <p>Account details and your lifetime emission stats, computed from your saved predictions.</p>
+    </div>
+  </div>
+
+  <div class="container section-inner" style="padding-top:8px;">
+    <div class="profile-grid">
+      <div class="card profile-card reveal is-visible">
+        {% if current_user.avatar_url %}
+          <img class="profile-card__avatar" src="{{ current_user.avatar_url }}" alt="" referrerpolicy="no-referrer">
+        {% else %}
+          <div class="profile-card__avatar">{{ current_user.name[:1]|upper }}</div>
+        {% endif %}
+        <h2>{{ current_user.name }}</h2>
+        <span class="email">{{ current_user.email }}</span>
+        <span class="joined">Joined {{ current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else '—' }}</span>
+        <a href="/history" class="btn btn--outline" style="margin-top:8px;">View full history</a>
+      </div>
+
+      <div class="card reveal is-visible" style="padding:24px;">
+        <h3 style="font-size:1.02rem; margin-bottom:18px;">Lifetime stats</h3>
+        <div class="profile-stats" id="profileStats">
+          <div class="card kpi-card kpi-card--primary">
+            <div class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <b id="statTotal">—</b>
+            <span>Total Predictions</span>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg></div>
+            <b id="statAverage">—</b>
+            <span>Average Emission</span>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <b id="statHighest">—</b>
+            <span>Highest Emission</span>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 4 7 4 11.5 4 16 7.5 21 12 21s8-5 8-9.5C20 7 17 3 12 3Z" stroke="currentColor" stroke-width="1.7"/></svg></div>
+            <b id="statLowest">—</b>
+            <span>Lowest Emission</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% include "_footer_toast.html" %}
+
+{% include "_shared_scripts.html" %}
+<script>
+(function(){
+  "use strict";
+
+  fetch('/analytics/summary')
+    .then(function(res){
+      if(!res.ok) throw new Error('Could not load stats');
+      return res.json();
+    })
+    .then(function(summary){
+      document.getElementById('statTotal').textContent = summary.total_predictions;
+      document.getElementById('statAverage').textContent = typeof summary.average_emission === 'number'
+        ? summary.average_emission.toFixed(1) + ' kg' : '—';
+      document.getElementById('statHighest').textContent = typeof summary.highest_emission === 'number'
+        ? summary.highest_emission.toFixed(1) + ' kg' : '—';
+      document.getElementById('statLowest').textContent = typeof summary.lowest_emission === 'number'
+        ? summary.lowest_emission.toFixed(1) + ' kg' : '—';
+    })
+    .catch(function(){
+      showToast('Could not load your stats. Please refresh the page.');
+    });
+})();
+</script>
+</body>
+</html>
